@@ -241,7 +241,11 @@ files.grep_string = function(opts)
 
   opts.__inverted, opts.__matches = opts_contain_invert(args)
 
-  if opts.grep_open_files then
+  if vim.g.FileName then
+    for line in io.lines(vim.g.FileName) do
+      table.insert(args, line)
+    end
+  elseif opts.grep_open_files then
     for _, file in ipairs(get_open_filelist(opts.grep_open_files, opts.cwd)) do
       table.insert(args, file)
     end
@@ -265,7 +269,9 @@ end
 
 files.find_files = function(opts)
   local find_command = (function()
-    if opts.find_command then
+    if vim.g.FileName then
+      return { "cat", vim.g.FileName }
+    elseif opts.find_command then
       if type(opts.find_command) == "function" then
         return opts.find_command(opts)
       end
